@@ -4,14 +4,14 @@ const { WebPlugin } = require("web-webpack-plugin");
 const DefinePlugin = require("webpack/lib/DefinePlugin");
 const ModuleConcatenationPlugin = require("webpack/lib/optimize/ModuleConcatenationPlugin");
 
-const section = "01";
+const section = "02";
 
 module.exports = {
   entry: {
     main: `./src/${section}/index.js`
   },
   output: {
-    filename: "[name]_[contenthash:8].js",
+    filename: "[name]_[hash:8].js",
     path: path.resolve(__dirname, "./dist")
   },
   watchOptions: {
