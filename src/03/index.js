@@ -1,3 +1,5 @@
+import optimize from "./optimize";
+
 const ncname = "[a-zA-Z_][\\w\\-\\.]*";
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`;
 const startTagOpen = new RegExp(`^<${qnameCapture}`);
@@ -234,4 +236,6 @@ parseHTML(template, {
   }
 });
 
+// 优化器
+optimize(ast);
 console.log("ast", ast);
