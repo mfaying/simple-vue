@@ -1,4 +1,5 @@
 import optimize from "./optimize";
+import codeGen from "./codeGen";
 
 const ncname = "[a-zA-Z_][\\w\\-\\.]*";
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`;
@@ -239,3 +240,8 @@ parseHTML(template, {
 // 优化器
 optimize(ast);
 console.log("ast", ast);
+
+for (let i = 0, l = ast.length; i < l; i++) {
+  const code = codeGen(ast[i]);
+  console.log("code", code);
+}
