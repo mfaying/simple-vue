@@ -78,8 +78,6 @@ function defineReactive(data, key, val) {
       dep.depend();
 
       if (childOb) {
-        console.log("childOb window.target", window.target);
-        console.log("childOb++", childOb);
         childOb.dep.depend();
         // childOb.dep.notify();
       }

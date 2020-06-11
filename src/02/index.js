@@ -8,4 +8,3 @@ new Observer(window.data);
 new Watcher(window.data.a, "0", () => {
   console.log("Watcher exec");
 });
-// 执行后打印watcher
