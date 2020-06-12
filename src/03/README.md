@@ -2,6 +2,29 @@
 
 vue.js 将模板编译成渲染函数的步骤分为三步，解析器、优化器、代码生成器。
 
+形如 template 这样的模板
+
+```js
+const template = `
+  <body>
+    <!-- <div></div> -->
+    <div>
+      1{{a}}
+      <div>
+        2
+      </div>
+    </div>
+    <script>var b = 1;</script>
+  </body>
+`;
+```
+
+经过解析器、优化器、代码生成器，最终会生成代码字符串：
+
+```
+_c('body',{},[_e(" <div></div> "),_c('div',{},[_v("1"+_s(a)),_c('div',{},[_v("2")])]),_c('script',{},[_v("var b = 1;")])])
+```
+
 ## 解析器
 
 解析器分为 HTML 解析器、文本解析器。
@@ -417,3 +440,134 @@ parseHTML(template, {
 ```
 
 ## 优化器
+
+优化器是为了标记静态节点，因为静态节点不会变化，所以每次重新渲染不用重新创建节点，在 patching 算法中可以被跳过。
+
+优化器分为两步： 1.找出所有静态节点并标记。2.找出所有静态根节点并标记。
+
+```js
+export default function optimize(root) {
+  if (!root) {
+    return;
+  }
+  markStatic(root);
+  markStaticRoots(root);
+}
+```
+
+找出所有静态节点并标记，只要一层层遍历递归就可以了。
+
+```js
+function markStatic(node) {
+  node.static = isStatic(node);
+  if (node.type === 1) {
+    for (let i = 0, l = node.children.length; i < l; i++) {
+      const child = node.children[i];
+      markStatic(child);
+
+      if (!child.static) {
+        node.static = false;
+      }
+    }
+  }
+}
+
+function isStatic(node) {
+  if (node.type === 2) {
+    // 带变量的动态文本节点
+    return false;
+  }
+  if (node.type === 3) {
+    // 不带变量的纯文本节点
+    return true;
+  }
+}
+```
+
+在找出所有静态节点以后，标记静态根节点也变得容易。只需要从根节点往子节点一层层遍历 AST 就可以了。
+
+```js
+function markStaticRoots(node) {
+  if (node.type === 1) {
+    if (
+      node.static &&
+      node.children.length &&
+      !(node.children.length === 1 && node.children[0].type === 3)
+    ) {
+      node.staticRoot = true;
+      return;
+    } else {
+      node.staticRoot = false;
+    }
+    if (node.children) {
+      for (let i = 0, l = node.children.length; i < l; i++) {
+        markStaticRoots(node.children[i]);
+      }
+    }
+  }
+}
+```
+
+## 代码生成器
+
+代码生成器会得到一个字符串,如：code=`_c('body',{},[_e(" <div></div> "),_c('div',{},[_v("1"+_s(a)),_c('div',{},[_v("2")])]),_c('script',{},[_v("var b = 1;")])])`。
+执行代码生成器，可以调用 vue.js 封装的各种创建方法，如创建元素节点、创建文本节点，等等。
+伪代码如下：
+`with(this){return ${code}}`
+其生成的过程也很简单，主要是遍历递归并根据节点类型 type 来拼接不同的方法名。
+
+```js
+function genData(el, state) {
+  let data = "{";
+
+  if (el.key) {
+    data += `key:${el.key},`;
+  }
+  if (el.ref) {
+    data += `ref:${el.ref},`;
+  }
+  if (el.pre) {
+    data += `pre:true,`;
+  }
+
+  //类似的还有很多种情况
+  data = data.replace(/,$/, "") + "}";
+  return data;
+}
+
+function genChildren(el, state) {
+  const children = el.children;
+  if (children.length) {
+    return `[${children.map(c => genNode(c, state)).join(",")}]`;
+  }
+}
+
+function genNode(node, state) {
+  if (node.type === 1) {
+    return genElement(node, state);
+  } else if (node.type === 3 && node.isComment) {
+    return genComment(node);
+  } else {
+    return genText(node);
+  }
+}
+
+function genText(text) {
+  return `_v(${text.type === 2 ? text.expression : JSON.stringify(text.text)})`;
+}
+
+function genComment(comment) {
+  return `_e(${JSON.stringify(comment.text)})`;
+}
+
+export default function genElement(el, state) {
+  const data = el.plain ? undefined : genData(el, state);
+
+  const children = genChildren(el, state);
+  const code = `_c('${el.tag}'${data ? `,${data}` : ""}${
+    children ? `,${children}` : ""
+  })`;
+
+  return code;
+}
+```
