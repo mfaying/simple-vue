@@ -1,0 +1,10 @@
+**/*.svg
+package.json
+/dist
+.DS_Store
+.eslintignore
+*.md
+.editorconfig
+.gitignore
+.prettierignore
+LICENSE

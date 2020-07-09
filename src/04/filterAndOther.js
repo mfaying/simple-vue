@@ -5,28 +5,32 @@ function isPlainObject() {}
 
 exports.filterAndOther = function(Vue) {
   Vue.options = Object.create(null);
-  Vue.options["directives"] = Object.create(null);
+  ASSET_TYPES.forEach(type => {
+    Vue.options[type + "s"] = Object.create(null);
+  });
 
-  Vue.directive = function(id, definition) {
-    ASSET_TYPES.forEach(type => {
-      Vue.options[type + "s"] = Object.create(null);
-    });
-    ASSET_TYPES.forEach(type => {
-      Vue[type] = function(id, definition) {
-        if (!definition) {
-          return this.options[type + "s"][id];
-        } else {
-          if (type === "component" && isPlainObject(definition)) {
-            definition.name = definition.name || id;
-            definition = Vue.extend(definition);
+  ASSET_TYPES.forEach(type => {
+    Vue.directive = function(id, definition) {
+      ASSET_TYPES.forEach(type => {
+        Vue.options[type + "s"] = Object.create(null);
+      });
+      ASSET_TYPES.forEach(type => {
+        Vue[type] = function(id, definition) {
+          if (!definition) {
+            return this.options[type + "s"][id];
+          } else {
+            if (type === "component" && isPlainObject(definition)) {
+              definition.name = definition.name || id;
+              definition = Vue.extend(definition);
+            }
+            if (type === "directive" && typeof definition === "function") {
+              definition = { bind: definition, update: definition };
+            }
+            this.options[type + "s"][id] = definition;
+            return definition;
           }
-          if (type === "directive" && typeof definition === "function") {
-            definition = { bind: definition, update: definition };
-          }
-          this.options[type + "s"][id] = definition;
-          return definition;
-        }
-      };
-    });
-  };
+        };
+      });
+    };
+  });
 };
