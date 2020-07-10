@@ -1,3 +1,4 @@
+# 实例方法和全局API
 # 事件相关的实例方法
 在eventsMixin中挂载到Vue构造函数的prototype中
 ## vm.$on
@@ -136,7 +137,7 @@ Vue.prototype.$destroy = function() {
 };
 ```
 ## vm.$nextTick
-nextTick接收一个回调函数作为参数，它的作用是将回调延迟到下次DOM更新周期之后执行。如果没有提供回调且支持Promise的环境中，则返回一个Promise
+nextTick接收一个回调函数作为参数，它的作用是将回调延迟到下次DOM更新周期之后执行。如果没有提供回调且支持Promise的环境中，则返回一个Promise。
 
 使用示例：
 ```js
@@ -165,7 +166,7 @@ JavaScript是单线程的脚本语言，任何时候都只有一个主线程来�
 2. MutationObserver
 3. Object.observe
 4. process.nextTick
-...
+5. ...
 
 属于宏任务的事件有
 1. setTimeout
@@ -175,7 +176,8 @@ JavaScript是单线程的脚本语言，任何时候都只有一个主线程来�
 5. requestAnimationFrame
 6. I/O
 7. UI交互事件
-...
+8. ...
+
 下次DOM更新周期其实是下次微任务执行时更新DOM。vm.$nextTick其实是将回调添加到微任务中。只有特殊情况下才会降级成宏任务。
 ### nextTick的实现
 nextTick一般情况会使用Promise.then将`flushCallbacks`添加到微任务队列中
