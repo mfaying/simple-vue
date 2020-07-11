@@ -4,4 +4,5 @@
 ## [模板编译原理](https://github.com/mfaying/simple-vue/tree/master/src/03)
 ## [实例方法和全局API](https://github.com/mfaying/simple-vue/tree/master/src/04)
 
-## 参考《深入浅出Vue.js》
+## 参考
+1. 《深入浅出Vue.js》
