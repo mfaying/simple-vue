@@ -61,5 +61,37 @@ export function initMixin(Vue) {
   };
 }
 ```
-## callback
+## callHook函数的内部原理
+Vue.js通过callHook函数来触发生命周期钩子
+
+Vue.js在合并options的过程中会找出options中所有key是否钩子函数的名字，并将它转换成数组。数组因为Vue.mixin方法，同一生命周期，会执行多个同名生命周期方法。
+
+下面列出了所有生命周期钩子的函数名
+1. beforeCreate
+2. created
+3. beforeMount
+4. mounted
+5. beforeUpdate
+6. updated
+7. beforeDestroy
+8. destroyed
+9. activated
+10. deactivated
+11. errorCaptured
+
+实现代码如下：
+```js
+export function callHook(vm, hook) {
+  const handlers = vm.$options[hook];
+  if (handlers) {
+    for (let i = 0, j = handlers.length; i < j; i++) {
+      try {
+        handlers[i].call(vm);
+      } catch (e) {
+        handleError(e, vm, `${hook} hook`);
+      }
+    }
+  }
+}
+```
 
