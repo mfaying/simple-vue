@@ -30,18 +30,24 @@ this._init(options)执行了生命周期的初始化流程。
 export function initMixin(Vue) {
   Vue.prototype._init = function(options) {
     vm.$options = mergeOptions(
+      // 获取当前实例中构造函数的options及其所有父级实例构造函数的options
       resolveConstructorOptions(vm.constructor),
       options || {},
       vm
     )
 
+    // 初始化lifecycle
     initLifecycle(vm);
+    // 初始化事件
     initEvents(vm);
     initRender(vm);
     callHook(vm, 'beforeCreate')
+    // 初始化inject
     initInjections(vm); // 在 data/props前初始化inject
+    // 初始化状态，这里的状态指的是props、methods、data、computed以及watch
     iniiState(vm);
-    initProvide(vm); // 在 data/props 后初始化provide
+    // 初始化provide
+    initProvide(vm); // 在 data/props后初始化provide
     callHook(vm, 'created')
 
 
@@ -55,3 +61,5 @@ export function initMixin(Vue) {
   };
 }
 ```
+## callback
+
