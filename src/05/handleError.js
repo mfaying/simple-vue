@@ -1,5 +1,3 @@
-import { config } from "rxjs";
-
 function handleError(err, vm, info) {
   if (vm) {
     let cur = vm;

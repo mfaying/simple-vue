@@ -1,5 +1,3 @@
-const isPlainObject = require("_is-plain-object@2.0.4@is-plain-object");
-
 function initWatch(vm, watch) {
   for (const key in watch) {
     const handler = watch[key];
