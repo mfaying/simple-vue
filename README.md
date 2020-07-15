@@ -3,6 +3,7 @@
 ## [Array 的变化侦测](https://github.com/mfaying/simple-vue/tree/master/src/02)
 ## [模板编译原理](https://github.com/mfaying/simple-vue/tree/master/src/03)
 ## [实例方法和全局API](https://github.com/mfaying/simple-vue/tree/master/src/04)
+## [生命周期](https://github.com/mfaying/simple-vue/tree/master/src/05)
 
 ## 参考
 1. 《深入浅出Vue.js》
